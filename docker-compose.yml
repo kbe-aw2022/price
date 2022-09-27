@@ -1,0 +1,26 @@
+version: '3.3'
+
+services:
+  price:
+    container_name: price
+    build: .
+    image: price
+
+    ports:
+      - "9002:9002"
+    restart: on-failure
+    environment:
+      - spring_rabbitmq_host=rabbit
+      - spring_rabbitmq_port=5672
+      - spring_rabbitmq_username=guest
+      - spring_rabbitmq_password=guest
+
+    networks:
+      - default
+      - rabbitmq_default
+
+networks:
+  default:
+    internal: true
+  rabbitmq_default:
+    external: true
