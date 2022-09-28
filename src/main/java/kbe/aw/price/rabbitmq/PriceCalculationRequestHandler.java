@@ -12,12 +12,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import kbe.aw.price.configuration.RabbitConfiguration;
 import kbe.aw.price.model.HardwareComponent;
 import kbe.aw.price.model.Product;
+import kbe.aw.price.calculation.PriceCalculator;
 
 @Component
 public class PriceCalculationRequestHandler
 {
    @Autowired
    private ObjectMapper objectMapper;
+
+   @Autowired
+   private PriceCalculator priceCalculator;
 
    @RabbitListener(queues = RabbitConfiguration.REQUEST_PRICE_QUE)
    public String handlePriceCalculationRequest(Product product)
@@ -26,24 +30,12 @@ public class PriceCalculationRequestHandler
 
       try
       {
-         return objectMapper.writeValueAsString(calculatePrice(hardwareComponents));
+         return objectMapper.writeValueAsString(priceCalculator.calculatePrice(hardwareComponents));
       }
       catch (JsonProcessingException e)
       {
          throw new RuntimeException(e);
       }
-   }
-
-   private Double calculatePrice(List<HardwareComponent> hardwareComponents)
-   {
-      double price = 0D;
-
-      for(HardwareComponent hardwareComponent : hardwareComponents)
-      {
-         price = price + hardwareComponent.getPrice();
-      }
-
-      return price;
    }
 
 }
